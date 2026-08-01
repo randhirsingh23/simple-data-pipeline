@@ -21,3 +21,15 @@ simple-data-pipeline/
 │   └── pipeline.py
 ├── requirements.txt
 └── README.md
+```
+## Development Setup
+
+Install runtime and development dependencies:
+
+```bash
+python -m pip install -r requirements-dev.txt
+```
+
+```bash
+ruff check .
+```
