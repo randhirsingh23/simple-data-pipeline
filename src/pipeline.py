@@ -2,7 +2,6 @@ from pathlib import Path
 
 import pandas as pd
 
-
 # Find the main project directory
 BASE_DIR = Path(__file__).resolve().parents[1]
 
@@ -24,15 +23,12 @@ def run_pipeline() -> None:
     )
 
     # Transform: Sort customers by amount
-    customers = customers.sort_values(
-        by="amount",
-        ascending=False
-    )
+    customers = customers.sort_values(by="amount", ascending=False)
 
     # Load: Save processed data
     customers.to_csv(OUTPUT_FILE, index=False)
 
-    print(f"Pipeline completed successfully.")
+    print("Pipeline completed successfully.")
     print(f"Output created at: {OUTPUT_FILE}")
 
 
