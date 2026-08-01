@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 
 import pandas as pd
@@ -7,6 +8,11 @@ BASE_DIR = Path(__file__).resolve().parents[1]
 
 INPUT_FILE = BASE_DIR / "data" / "raw" / "customers.csv"
 OUTPUT_FILE = BASE_DIR / "data" / "processed" / "customers_cleaned.csv"
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s | %(levelname)s | %(message)s",
+)
 
 
 def run_pipeline() -> None:
@@ -28,8 +34,8 @@ def run_pipeline() -> None:
     # Load: Save processed data
     customers.to_csv(OUTPUT_FILE, index=False)
 
-    print("Pipeline completed successfully.")
-    print(f"Output created at: {OUTPUT_FILE}")
+    logging.info("Pipeline completed successfully.")
+    logging.info("Output created at: %s", OUTPUT_FILE)
 
 
 if __name__ == "__main__":
