@@ -5,10 +5,14 @@
 __pycache__/
 *.pyc
 
+# Testing and linting caches
+.pytest_cache/
+.ruff_cache/
+
 # macOS files
 .DS_Store
 
-# VS Code project settings
+# VS Code settings
 .vscode/
 
 # Generated pipeline output
