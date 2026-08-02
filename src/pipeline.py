@@ -69,6 +69,8 @@ def load_data(customers: pd.DataFrame, file_path: Path) -> None:
 
 
 def run_pipeline() -> None:
+    logging.info("Pipeline started.")
+
     # Extract
     customers = extract_data(INPUT_FILE)
 
@@ -85,4 +87,8 @@ def run_pipeline() -> None:
 
 
 if __name__ == "__main__":
-    run_pipeline()
+    try:
+        run_pipeline()
+    except Exception as error:
+        logging.error("Pipeline failed: %s", error)
+        raise SystemExit(1) from None
