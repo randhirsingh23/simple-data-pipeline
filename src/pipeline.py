@@ -10,6 +10,8 @@ INPUT_FILE = BASE_DIR / "data" / "raw" / "customers.csv"
 OUTPUT_FILE = BASE_DIR / "data" / "processed" / "customers_cleaned.csv"
 REQUIRED_COLUMNS = {"customer_id", "name", "city", "amount"}
 
+HIGH_VALUE_THRESHOLD = 2000
+
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
@@ -54,7 +56,7 @@ def transform_data(customers: pd.DataFrame) -> pd.DataFrame:
     customers["city"] = customers["city"].str.strip().str.title()
 
     customers["customer_type"] = customers["amount"].apply(
-        lambda amount: "High Value" if amount >= 2000 else "Regular"
+        lambda amount: "High Value" if amount >= HIGH_VALUE_THRESHOLD else "Regular"
     )
 
     customers = customers.sort_values(by="amount", ascending=False)
