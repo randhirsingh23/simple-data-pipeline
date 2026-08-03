@@ -39,3 +39,64 @@ def test_transform_data_cleans_classifies_and_sorts() -> None:
     assert result["name"].tolist() == ["Priya", "Rahul"]
     assert result["city"].tolist() == ["Mumbai", "Delhi"]
     assert result["customer_type"].tolist() == ["High Value", "Regular"]
+
+
+def test_validate_data_rejects_duplicate_customer_ids() -> None:
+    customers = pd.DataFrame(
+        {
+            "customer_id": [101, 101],
+            "name": ["Rahul", "Priya"],
+            "city": ["Delhi", "Mumbai"],
+            "amount": [1200, 2500],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="customer_id contains duplicate values",
+    ):
+        validate_data(customers)
+
+
+def test_validate_data_rejects_non_numeric_amount() -> None:
+    customers = pd.DataFrame(
+        {
+            "customer_id": [101],
+            "name": ["Rahul"],
+            "city": ["Delhi"],
+            "amount": ["abc"],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="amount contains missing or non-numeric values",
+    ):
+        validate_data(customers)
+
+
+def test_validate_data_rejects_missing_customer_id() -> None:
+    customers = pd.DataFrame(
+        {
+            "customer_id": [None],
+            "name": ["Rahul"],
+            "city": ["Delhi"],
+            "amount": [1200],
+        }
+    )
+
+    with pytest.raises(
+        ValueError,
+        match="customer_id contains missing values",
+    ):
+        validate_data(customers)
+
+
+def test_validate_data_rejects_empty_data() -> None:
+    customers = pd.DataFrame(columns=["customer_id", "name", "city", "amount"])
+
+    with pytest.raises(
+        ValueError,
+        match="Customer data is empty",
+    ):
+        validate_data(customers)
