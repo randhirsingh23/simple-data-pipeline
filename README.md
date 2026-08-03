@@ -1,5 +1,7 @@
 # Simple Data Pipeline
 
+![CI](https://github.com/randhirsingh23/simple-data-pipeline/actions/workflows/ci.yml/badge.svg)
+
 A basic ETL data pipeline built with Python and pandas.
 
 ## Pipeline Flow
