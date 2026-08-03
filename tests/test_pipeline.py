@@ -8,6 +8,8 @@ from src.pipeline import (
     validate_data,
 )
 
+TEST_HIGH_VALUE_THRESHOLD = 2000
+
 
 def test_validate_data_rejects_missing_columns() -> None:
     customers = pd.DataFrame(
@@ -37,7 +39,7 @@ def test_transform_data_cleans_classifies_and_sorts() -> None:
     )
 
     # Act: Run the transformation
-    result = transform_data(customers)
+    result = transform_data(customers, TEST_HIGH_VALUE_THRESHOLD)
 
     # Assert: Verify the expected output
     assert result["customer_id"].tolist() == [102, 101]
@@ -124,7 +126,7 @@ def test_etl_stages_work_together(tmp_path) -> None:
 
     customers = extract_data(input_file)
     validate_data(customers)
-    customers = transform_data(customers)
+    customers = transform_data(customers, TEST_HIGH_VALUE_THRESHOLD)
     load_data(customers, output_file)
 
     result = pd.read_csv(output_file)

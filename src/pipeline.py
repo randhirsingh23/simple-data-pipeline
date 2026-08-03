@@ -1,4 +1,5 @@
 import logging
+import tomllib
 from pathlib import Path
 
 import pandas as pd
@@ -10,12 +11,20 @@ INPUT_FILE = BASE_DIR / "data" / "raw" / "customers.csv"
 OUTPUT_FILE = BASE_DIR / "data" / "processed" / "customers_cleaned.csv"
 REQUIRED_COLUMNS = {"customer_id", "name", "city", "amount"}
 
-HIGH_VALUE_THRESHOLD = 2000
+CONFIG_FILE = BASE_DIR / "config.toml"
 
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
 )
+
+
+def load_config(file_path: Path) -> dict:
+    """Read pipeline configuration from a TOML file."""
+    logging.info("Loading configuration from: %s", file_path)
+
+    with file_path.open("rb") as config_file:
+        return tomllib.load(config_file)
 
 
 def extract_data(file_path: Path) -> pd.DataFrame:
@@ -48,7 +57,10 @@ def validate_data(customers: pd.DataFrame) -> None:
         raise ValueError("amount contains missing or non-numeric values.")
 
 
-def transform_data(customers: pd.DataFrame) -> pd.DataFrame:
+def transform_data(
+    customers: pd.DataFrame,
+    high_value_threshold: int,
+) -> pd.DataFrame:
     """Clean and transform customer data."""
     logging.info("Transforming customer data.")
 
@@ -56,7 +68,7 @@ def transform_data(customers: pd.DataFrame) -> pd.DataFrame:
     customers["city"] = customers["city"].str.strip().str.title()
 
     customers["customer_type"] = customers["amount"].apply(
-        lambda amount: "High Value" if amount >= HIGH_VALUE_THRESHOLD else "Regular"
+        lambda amount: "High Value" if amount >= high_value_threshold else "Regular"
     )
 
     customers = customers.sort_values(by="amount", ascending=False)
@@ -73,6 +85,9 @@ def load_data(customers: pd.DataFrame, file_path: Path) -> None:
 def run_pipeline() -> None:
     logging.info("Pipeline started.")
 
+    config = load_config(CONFIG_FILE)
+    high_value_threshold = config["pipeline"]["high_value_threshold"]
+
     # Extract
     customers = extract_data(INPUT_FILE)
 
@@ -80,7 +95,7 @@ def run_pipeline() -> None:
     validate_data(customers)
 
     # Transform
-    customers = transform_data(customers)
+    customers = transform_data(customers, high_value_threshold)
 
     # Load
     load_data(customers, OUTPUT_FILE)
