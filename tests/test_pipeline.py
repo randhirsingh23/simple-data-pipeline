@@ -1,7 +1,12 @@
 import pandas as pd
 import pytest
 
-from src.pipeline import transform_data, validate_data
+from src.pipeline import (
+    extract_data,
+    load_data,
+    transform_data,
+    validate_data,
+)
 
 
 def test_validate_data_rejects_missing_columns() -> None:
@@ -100,3 +105,31 @@ def test_validate_data_rejects_empty_data() -> None:
         match="Customer data is empty",
     ):
         validate_data(customers)
+
+
+# Integration test for the entire pipeline
+def test_etl_stages_work_together(tmp_path) -> None:
+    input_file = tmp_path / "customers.csv"
+    output_file = tmp_path / "customers_cleaned.csv"
+
+    input_data = pd.DataFrame(
+        {
+            "customer_id": [101, 102],
+            "name": [" rahul ", "PRIYA"],
+            "city": [" delhi ", "MUMBAI"],
+            "amount": [1200, 2500],
+        }
+    )
+    input_data.to_csv(input_file, index=False)
+
+    customers = extract_data(input_file)
+    validate_data(customers)
+    customers = transform_data(customers)
+    load_data(customers, output_file)
+
+    result = pd.read_csv(output_file)
+
+    assert output_file.exists()
+    assert result["customer_id"].tolist() == [102, 101]
+    assert result["name"].tolist() == ["Priya", "Rahul"]
+    assert result["customer_type"].tolist() == ["High Value", "Regular"]
