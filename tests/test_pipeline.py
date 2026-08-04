@@ -5,6 +5,7 @@ from src.pipeline import (
     extract_data,
     load_data,
     transform_data,
+    validate_config,
     validate_data,
 )
 
@@ -107,6 +108,66 @@ def test_validate_data_rejects_empty_data() -> None:
         match="Customer data is empty",
     ):
         validate_data(customers)
+
+
+def test_validate_config_rejects_missing_pipeline_section() -> None:
+    config = {}
+
+    with pytest.raises(
+        ValueError,
+        match=r"Missing \[pipeline\] section",
+    ):
+        validate_config(config)
+
+
+def test_validate_config_rejects_missing_threshold() -> None:
+    config = {"pipeline": {}}
+
+    with pytest.raises(
+        ValueError,
+        match="Missing high_value_threshold",
+    ):
+        validate_config(config)
+
+
+def test_validate_config_rejects_non_numeric_threshold() -> None:
+    config = {
+        "pipeline": {
+            "high_value_threshold": "two thousand",
+        }
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="high_value_threshold must be numeric",
+    ):
+        validate_config(config)
+
+
+def test_validate_config_rejects_non_positive_threshold() -> None:
+    config = {
+        "pipeline": {
+            "high_value_threshold": 0,
+        }
+    }
+
+    with pytest.raises(
+        ValueError,
+        match="high_value_threshold must be greater than zero",
+    ):
+        validate_config(config)
+
+
+def test_validate_config_returns_valid_threshold() -> None:
+    config = {
+        "pipeline": {
+            "high_value_threshold": 2000,
+        }
+    }
+
+    result = validate_config(config)
+
+    assert result == 2000
 
 
 # Integration test for the entire pipeline

@@ -27,6 +27,29 @@ def load_config(file_path: Path) -> dict:
         return tomllib.load(config_file)
 
 
+def validate_config(config: dict) -> int | float:
+    """Validate configuration and return the high-value threshold."""
+    logging.info("Validating pipeline configuration.")
+
+    if "pipeline" not in config:
+        raise ValueError("Missing [pipeline] section in config.toml.")
+
+    pipeline_config = config["pipeline"]
+
+    if "high_value_threshold" not in pipeline_config:
+        raise ValueError("Missing high_value_threshold in the [pipeline] section.")
+
+    threshold = pipeline_config["high_value_threshold"]
+
+    if isinstance(threshold, bool) or not isinstance(threshold, (int, float)):
+        raise ValueError("high_value_threshold must be numeric.")
+
+    if threshold <= 0:
+        raise ValueError("high_value_threshold must be greater than zero.")
+
+    return threshold
+
+
 def extract_data(file_path: Path) -> pd.DataFrame:
     """Read customer data from a CSV file."""
     logging.info("Extracting data from: %s", file_path)
@@ -86,7 +109,7 @@ def run_pipeline() -> None:
     logging.info("Pipeline started.")
 
     config = load_config(CONFIG_FILE)
-    high_value_threshold = config["pipeline"]["high_value_threshold"]
+    high_value_threshold = validate_config(config)
 
     # Extract
     customers = extract_data(INPUT_FILE)
