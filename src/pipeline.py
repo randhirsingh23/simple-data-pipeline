@@ -84,7 +84,11 @@ def extract_data(file_path: Path) -> pd.DataFrame:
     if not file_path.is_file():
         raise ValueError(f"Input path is not a file: {file_path}")
 
-    return pd.read_csv(file_path)
+    customers = pd.read_csv(file_path)
+
+    logging.info("Rows extracted: %s", len(customers))
+
+    return customers
 
 
 def validate_data(customers: pd.DataFrame) -> None:
@@ -110,6 +114,8 @@ def validate_data(customers: pd.DataFrame) -> None:
     if numeric_amount.isna().any():
         raise ValueError("amount contains missing or non-numeric values.")
 
+    logging.info("Rows validated: %s", len(customers))
+
 
 def transform_data(
     customers: pd.DataFrame,
@@ -126,7 +132,7 @@ def transform_data(
     )
 
     customers = customers.sort_values(by="amount", ascending=False)
-
+    logging.info("Rows transformed: %s", len(customers))
     return customers
 
 
@@ -135,6 +141,7 @@ def load_data(customers: pd.DataFrame, file_path: Path) -> None:
     logging.info("Loading processed data to: %s", file_path)
     file_path.parent.mkdir(parents=True, exist_ok=True)
     customers.to_csv(file_path, index=False)
+    logging.info("Rows loaded: %s", len(customers))
 
 
 def run_pipeline(input_file: Path, output_file: Path) -> None:
