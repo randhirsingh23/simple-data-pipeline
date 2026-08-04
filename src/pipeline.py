@@ -77,6 +77,13 @@ def validate_config(config: dict) -> int | float:
 def extract_data(file_path: Path) -> pd.DataFrame:
     """Read customer data from a CSV file."""
     logging.info("Extracting data from: %s", file_path)
+
+    if not file_path.exists():
+        raise FileNotFoundError(f"Input file does not exist: {file_path}")
+
+    if not file_path.is_file():
+        raise ValueError(f"Input path is not a file: {file_path}")
+
     return pd.read_csv(file_path)
 
 
@@ -126,6 +133,7 @@ def transform_data(
 def load_data(customers: pd.DataFrame, file_path: Path) -> None:
     """Save processed customer data to a CSV file."""
     logging.info("Loading processed data to: %s", file_path)
+    file_path.parent.mkdir(parents=True, exist_ok=True)
     customers.to_csv(file_path, index=False)
 
 

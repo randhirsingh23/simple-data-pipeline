@@ -191,6 +191,48 @@ def test_parse_args_reads_custom_paths(monkeypatch) -> None:
     assert args.output_file == Path("data/processed/customers_august_cleaned.csv")
 
 
+def test_extract_data_rejects_missing_file(tmp_path) -> None:
+    missing_file = tmp_path / "not_found.csv"
+
+    with pytest.raises(
+        FileNotFoundError,
+        match="Input file does not exist",
+    ):
+        extract_data(missing_file)
+
+
+def test_extract_data_rejects_directory(tmp_path) -> None:
+    with pytest.raises(
+        ValueError,
+        match="Input path is not a file",
+    ):
+        extract_data(tmp_path)
+
+
+def test_load_data_creates_output_directory(tmp_path) -> None:
+    customers = pd.DataFrame(
+        {
+            "customer_id": [101],
+            "name": ["Rahul"],
+            "city": ["Delhi"],
+            "amount": [1200],
+        }
+    )
+
+    output_file = tmp_path / "reports" / "august" / "customers_cleaned.csv"
+
+    load_data(customers, output_file)
+
+    assert output_file.exists()
+
+    saved_customers = pd.read_csv(output_file)
+
+    pd.testing.assert_frame_equal(
+        saved_customers,
+        customers,
+    )
+
+
 # Integration test for the entire pipeline
 def test_etl_stages_work_together(tmp_path) -> None:
     input_file = tmp_path / "customers.csv"
