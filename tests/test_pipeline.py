@@ -7,6 +7,7 @@ from src.pipeline import (
     extract_data,
     load_data,
     parse_args,
+    run_pipeline,
     transform_data,
     validate_config,
     validate_data,
@@ -182,6 +183,8 @@ def test_parse_args_reads_custom_paths(monkeypatch) -> None:
             "data/raw/customers_august.csv",
             "--output",
             "data/processed/customers_august_cleaned.csv",
+            "--config",
+            "config-august.toml",
         ],
     )
 
@@ -189,6 +192,7 @@ def test_parse_args_reads_custom_paths(monkeypatch) -> None:
 
     assert args.input_file == Path("data/raw/customers_august.csv")
     assert args.output_file == Path("data/processed/customers_august_cleaned.csv")
+    assert args.config_file == Path("config-august.toml")
 
 
 def test_extract_data_rejects_missing_file(tmp_path) -> None:
@@ -231,6 +235,32 @@ def test_load_data_creates_output_directory(tmp_path) -> None:
         saved_customers,
         customers,
     )
+
+
+def test_run_pipeline_uses_custom_config(tmp_path) -> None:
+    input_file = tmp_path / "customers.csv"
+    output_file = tmp_path / "output" / "customers_cleaned.csv"
+    config_file = tmp_path / "config-test.toml"
+
+    input_file.write_text(
+        "customer_id,name,city,amount\n101,Rohit,Mumbai,1500\n",
+        encoding="utf-8",
+    )
+
+    config_file.write_text(
+        "[pipeline]\nhigh_value_threshold = 1500\n",
+        encoding="utf-8",
+    )
+
+    run_pipeline(
+        input_file,
+        output_file,
+        config_file,
+    )
+
+    result = pd.read_csv(output_file)
+
+    assert result.loc[0, "customer_type"] == "High Value"
 
 
 # Integration test for the entire pipeline

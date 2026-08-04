@@ -40,6 +40,14 @@ def parse_args() -> argparse.Namespace:
         help="Path to the processed output CSV file.",
     )
 
+    parser.add_argument(
+        "--config",
+        dest="config_file",
+        type=Path,
+        default=CONFIG_FILE,
+        help="Path to the pipeline configuration TOML file.",
+    )
+
     return parser.parse_args()
 
 
@@ -144,10 +152,10 @@ def load_data(customers: pd.DataFrame, file_path: Path) -> None:
     logging.info("Rows loaded: %s", len(customers))
 
 
-def run_pipeline(input_file: Path, output_file: Path) -> None:
+def run_pipeline(input_file: Path, output_file: Path, config_file: Path) -> None:
     logging.info("Pipeline started.")
 
-    config = load_config(CONFIG_FILE)
+    config = load_config(config_file)
     high_value_threshold = validate_config(config)
 
     # Extract
@@ -168,7 +176,7 @@ def run_pipeline(input_file: Path, output_file: Path) -> None:
 if __name__ == "__main__":
     try:
         args = parse_args()
-        run_pipeline(args.input_file, args.output_file)
+        run_pipeline(args.input_file, args.output_file, args.config_file)
     except Exception as error:
         logging.error("Pipeline failed: %s", error)
         raise SystemExit(1) from None
