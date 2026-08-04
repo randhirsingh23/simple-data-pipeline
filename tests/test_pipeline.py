@@ -1,9 +1,12 @@
+from pathlib import Path
+
 import pandas as pd
 import pytest
 
 from src.pipeline import (
     extract_data,
     load_data,
+    parse_args,
     transform_data,
     validate_config,
     validate_data,
@@ -168,6 +171,24 @@ def test_validate_config_returns_valid_threshold() -> None:
     result = validate_config(config)
 
     assert result == 2000
+
+
+def test_parse_args_reads_custom_paths(monkeypatch) -> None:
+    monkeypatch.setattr(
+        "sys.argv",
+        [
+            "pipeline.py",
+            "--input",
+            "data/raw/customers_august.csv",
+            "--output",
+            "data/processed/customers_august_cleaned.csv",
+        ],
+    )
+
+    args = parse_args()
+
+    assert args.input_file == Path("data/raw/customers_august.csv")
+    assert args.output_file == Path("data/processed/customers_august_cleaned.csv")
 
 
 # Integration test for the entire pipeline

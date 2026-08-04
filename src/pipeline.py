@@ -1,3 +1,4 @@
+import argparse
 import logging
 import tomllib
 from pathlib import Path
@@ -17,6 +18,29 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s | %(levelname)s | %(message)s",
 )
+
+
+def parse_args() -> argparse.Namespace:
+    """Read command-line arguments."""
+    parser = argparse.ArgumentParser(description="Run the customer data pipeline.")
+
+    parser.add_argument(
+        "--input",
+        dest="input_file",
+        type=Path,
+        default=INPUT_FILE,
+        help="Path to the input customer CSV file.",
+    )
+
+    parser.add_argument(
+        "--output",
+        dest="output_file",
+        type=Path,
+        default=OUTPUT_FILE,
+        help="Path to the processed output CSV file.",
+    )
+
+    return parser.parse_args()
 
 
 def load_config(file_path: Path) -> dict:
@@ -105,14 +129,14 @@ def load_data(customers: pd.DataFrame, file_path: Path) -> None:
     customers.to_csv(file_path, index=False)
 
 
-def run_pipeline() -> None:
+def run_pipeline(input_file: Path, output_file: Path) -> None:
     logging.info("Pipeline started.")
 
     config = load_config(CONFIG_FILE)
     high_value_threshold = validate_config(config)
 
     # Extract
-    customers = extract_data(INPUT_FILE)
+    customers = extract_data(input_file)
 
     # Validate
     validate_data(customers)
@@ -121,14 +145,15 @@ def run_pipeline() -> None:
     customers = transform_data(customers, high_value_threshold)
 
     # Load
-    load_data(customers, OUTPUT_FILE)
+    load_data(customers, output_file)
 
     logging.info("Pipeline completed successfully.")
 
 
 if __name__ == "__main__":
     try:
-        run_pipeline()
+        args = parse_args()
+        run_pipeline(args.input_file, args.output_file)
     except Exception as error:
         logging.error("Pipeline failed: %s", error)
         raise SystemExit(1) from None

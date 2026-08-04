@@ -35,3 +35,25 @@ python -m pip install -r requirements-dev.txt
 ```bash
 ruff check .
 ```
+
+## Run the Pipeline
+
+Run with the default input and output paths:
+
+```bash
+python src/pipeline.py
+```
+
+Run with custom file paths:
+
+```bash
+python src/pipeline.py \
+  --input data/raw/customers.csv \
+  --output data/processed/customers_test.csv
+```
+
+View available command-line options:
+
+```bash
+python src/pipeline.py --help
+```
