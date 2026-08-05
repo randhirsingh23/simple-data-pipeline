@@ -38,7 +38,7 @@ ruff check .
 
 ## Run the Pipeline
 
-Run with the default input and output paths:
+Run with the default input, output, and configuration paths:
 
 ```bash
 python src/pipeline.py
@@ -49,7 +49,8 @@ Run with custom file paths:
 ```bash
 python src/pipeline.py \
   --input data/raw/customers.csv \
-  --output data/processed/customers_test.csv
+  --output data/processed/customers_test.csv \
+  --config config.toml
 ```
 
 View available command-line options:
