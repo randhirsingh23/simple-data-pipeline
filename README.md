@@ -65,6 +65,7 @@ The pipeline reads business settings from `config.toml`.
 ```toml
 [pipeline]
 high_value_threshold = 2000
+```
 
 ```bash
 python src/pipeline.py --config config-test.toml
